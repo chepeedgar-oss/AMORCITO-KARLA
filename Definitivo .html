@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<!-- ✅ VIEWPORT OPTIMIZADO PARA IPHONE -->
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Feliz Cumpleaños Aracely</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+html,body{
+ margin:0;
+ padding:0;
+ width:100%;
+ height:100%;
+ background:black;
+ font-family:'Cinzel',serif;
+ color:white;
+ overflow-x:hidden;
+ -webkit-font-smoothing:antialiased;
+}
+
+canvas{
+ position:fixed;
+ inset:0;
+ z-index:0;
+}
+
+.card{
+ position:relative;
+ z-index:5;
+ max-width:92vw;
+ margin:120px auto 900px;
+ padding:clamp(24px,5vw,48px);
+ background:rgba(0,0,0,.75);
+ border-radius:28px;
+ text-align:center;
+ box-shadow:0 0 120px rgba(255,105,180,.9);
+ animation:appear 2s ease forwards;
+}
+
+@keyframes appear{
+ from{opacity:0;transform:scale(.95)}
+ to{opacity:1;transform:scale(1)}
+}
+
+@keyframes beat{
+ 0%{transform:scale(1)}
+ 25%{transform:scale(1.06)}
+ 50%{transform:scale(1)}
+}
+
+.heartbeat{animation:beat 2.8s infinite}
+
+h1{
+ font-size:clamp(28px,7vw,44px);
+ color:#ff69b4;
+ margin-bottom:32px;
+}
+
+.name{
+ color:#ff1493;
+ font-weight:700;
+ text-shadow:0 0 30px #ff69b4;
+}
+
+p{
+ font-size:clamp(16px,4.6vw,22px);
+ font-weight:700;
+ line-height:1.9;
+ letter-spacing:1.4px;
+ margin:26px 0;
+}
+
+.p1{color:#ffd1dc}
+.p2{color:#ffb6c1}
+.p3{color:#ffcce6}
+.p4{color:#ff99cc}
+
+footer{
+ margin-top:36px;
+ font-size:clamp(14px,4vw,18px);
+ letter-spacing:2.5px;
+ color:#ffd1dc;
+}
+
+.heart{
+ position:fixed;
+ bottom:-60px;
+ font-size:40px;
+ opacity:.55;
+ animation:float 10s linear infinite;
+ z-index:1;
+ pointer-events:none;
+}
+
+@keyframes float{
+ from{transform:translateY(0)}
+ to{transform:translateY(-140vh)}
+}
+</style>
+</head>
+
+<body>
+
+<audio id="music" loop playsinline>
+ <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_2bfa3f36e1.mp3">
+</audio>
+
+<canvas id="space"></canvas>
+
+<div class="card heartbeat">
+ <h1>
+  🎉 FELIZ CUMPLEAÑOS 🎉<br>
+  <span class="name">Mi amorcito Aracely 💖</span>
+ </h1>
+
+ <p class="heartbeat p1">HOY CELEBRO SU VIDA Y LA BENDICIÓN DE AMARLA.</p>
+ <p class="heartbeat p2">QUE ESTE NUEVO AÑO LE DEVUELVA TODO EL AMOR QUE USTED DA.</p>
+ <p class="heartbeat p3">DESEO CUIDARLA, RESPETARLA Y CAMINAR A SU LADO.</p>
+ <p class="heartbeat p4">EL 10 DE DICIEMBRE DE 1999 NACIÓ UN SER MARAVILLOSO.</p>
+
+ <footer class="heartbeat">
+  SE LO ENVÍA EL AMOR DE SU VIDA J
+ </footer>
+</div>
+
+<script>
+/* ===== AUDIO (iOS SAFE) ===== */
+const music=document.getElementById("music");
+const startMusic=()=>{
+ music.volume=0.6;
+ music.play().catch(()=>{});
+ document.removeEventListener("touchstart",startMusic);
+ document.removeEventListener("click",startMusic);
+};
+document.addEventListener("touchstart",startMusic,{once:true});
+document.addEventListener("click",startMusic,{once:true});
+
+/* ===== SCROLL SUAVE (iOS) ===== */
+let y=0;
+setInterval(()=>{
+ y+=0.2;
+ window.scrollTo({top:y,behavior:"smooth"});
+},80);
+
+/* ===== CANVAS ===== */
+const c=document.getElementById("space"),ctx=c.getContext("2d");
+function resize(){
+ c.width=innerWidth;
+ c.height=innerHeight;
+}
+resize();addEventListener("resize",resize);
+
+/* ===== SISTEMA SOLAR ESCALADO ===== */
+const scale=innerWidth<500?1.2:2;
+const planets=[
+ {r:18,d:120,s:.012,c:"#aaa",a:0},
+ {r:22,d:180,s:.01,c:"#d2b48c",a:0},
+ {r:24,d:240,s:.008,c:"#4da6ff",a:0},
+ {r:20,d:300,s:.007,c:"#ff4d4d",a:0},
+ {r:34,d:380,s:.005,c:"#ffd27f",a:0}
+];
+
+/* ===== ESTRELLAS FUGACES ===== */
+let stars=[];
+setInterval(()=>stars.push({
+ x:Math.random()*c.width,
+ y:Math.random()*c.height,
+ vx:8,vy:6,s:14,l:80
+}),700);
+
+function draw(){
+ ctx.fillStyle="rgba(0,0,0,.5)";
+ ctx.fillRect(0,0,c.width,c.height);
+
+ ctx.save();
+ ctx.translate(c.width/2,c.height/2);
+ ctx.scale(scale,scale);
+
+ ctx.beginPath();
+ ctx.arc(0,0,28,0,Math.PI*2);
+ ctx.fillStyle="#ffcc33";
+ ctx.shadowBlur=50;
+ ctx.fill();
+
+ planets.forEach(p=>{
+  p.a+=p.s;
+  ctx.beginPath();
+  ctx.arc(Math.cos(p.a)*p.d,Math.sin(p.a)*p.d,p.r,0,Math.PI*2);
+  ctx.fillStyle=p.c;
+  ctx.shadowBlur=20;
+  ctx.fill();
+ });
+
+ ctx.restore();
+
+ stars=stars.filter(s=>s.l--);
+ stars.forEach(s=>{
+  ctx.fillStyle="white";
+  ctx.fillRect(s.x+=s.vx,s.y+=s.vy,s.s,s.s);
+ });
+
+ requestAnimationFrame(draw);
+}
+draw();
+
+/* ===== CORAZONES ===== */
+setInterval(()=>{
+ const h=document.createElement("div");
+ h.className="heart";
+ h.textContent="💖";
+ h.style.left=Math.random()*100+"%";
+ document.body.appendChild(h);
+ setTimeout(()=>h.remove(),10000);
+},700);
+</script>
+
+</body>
+</html>
